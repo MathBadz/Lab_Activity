@@ -1,6 +1,6 @@
 ITSAR2 313 - SYSTEM INTEGRATION AND ARCHITECTURE 2  
 LABORATORY REPORT: EXERCISE 2 MONOLITH VS MICROSERVICE  
-**Badajos, Math Auric Ros; Salazar, Shirley Ann; Villalobos, Jon Nathaniel; Yanson, Rea Nicole; Zambra, Maika**
+**Badajos, Math Auric Ros; Salazar, Shirley Ann; Villalobos, Jon Nathaniel; Yanson, Rea Nicole; Zambra, Maika **
 Information Technology, College of Computer Studies  
 Carlos Hilado Memorial State University
 
