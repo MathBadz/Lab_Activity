@@ -1,0 +1,187 @@
+ITSAR2 313 - SYSTEM INTEGRATION AND ARCHITECTURE 2
+LABORATORY REPORT: EXERCISE 1 MONOLITH VS MICROSERVICE
+Badajos, Math Auric Ros; Salazar, Shirley Ann; Villalobos, Jon Nathaniel; Yanson, Rea Nicole; Zambra, Maika
+Information Technology, College of Computer Studies
+Carlos Hilado Memorial State University
+
+Abstract
+
+This laboratory exercise implemented and compared two versions of the same Student Course System: a monolithic architecture and a microservices architecture. The monolithic version was built as a single Node.js and Express application containing all modules (students, courses, and enrollments) under one process, while the microservices version separated these modules into independent services with an API Gateway for unified access. Both implementations supported core operations such as CRUD for students and courses, enrollment creation, duplicate enrollment prevention, and seeded test data generation. Through implementation and endpoint testing, the monolithic architecture showed simpler deployment and easier local debugging, while the microservices architecture showed stronger modularity, better service isolation, and clearer scalability paths. However, microservices introduced added complexity in service startup, inter-service communication, and operational management.
+
+I. INTRODUCTION
+
+This exercise explores two software architecture styles applied to one domain problem: Student, Course, and Enrollment management.
+
+Monolithic architecture theory:
+- All modules run in one deployable application and one process.
+- Internal calls are local function/module calls.
+- Deployment and debugging are generally simpler because there is one runtime and one port.
+
+Microservices architecture theory:
+- Domain capabilities are separated into independent services.
+- Services communicate through network calls (HTTP in this project).
+- A gateway can provide one client entry point while routing requests internally.
+- This style improves modularity and independent scaling, but adds distributed-system concerns such as service availability, timeouts, and startup orchestration.
+
+Concepts applied in the exercise:
+- REST API design with resource-based routes and HTTP verbs.
+- Separation of concerns (routes/controllers/models/middleware in monolith; service boundaries in microservices).
+- API Gateway pattern for unified access.
+- Inter-service communication and dependency validation.
+- Input validation, duplicate prevention, and error handling.
+- Health checks for service monitoring.
+
+Requisites used to attain the exercise objectives:
+- Node.js runtime and npm for all servers and scripts.
+- Express framework for HTTP APIs.
+- UUID generation for entity IDs.
+- PowerShell scripts for batch dependency install and multi-service startup in microservices.
+- Browser/curl-based endpoint testing and seed scripts.
+- Knowledge of service ports and endpoint mapping.
+
+II. METHODOLOGY / IMPLEMENTATION
+
+A comparative and iterative implementation strategy was followed.
+
+A. Monolithic implementation process
+1. A single Express server was configured (default port 3000).
+2. Domain modules were organized using:
+   - Models (in-memory stores)
+   - Controllers (business logic)
+   - Routes (HTTP mapping)
+   - Middleware (validation and global error handling)
+3. Student and Course CRUD endpoints were implemented.
+4. Enrollment logic was implemented with business rules:
+   - Student and course must exist.
+   - Duplicate enrollment is rejected.
+5. Cascading behavior was implemented in delete operations:
+   - Deleting a student removes related enrollments.
+   - Deleting a course removes related enrollments.
+6. Static frontend assets were served from one public directory.
+7. A seed script was executed to generate baseline data.
+
+B. Microservices implementation process
+1. Four independent Express services were implemented:
+   - API Gateway (3000)
+   - Student Service (3001)
+   - Course Service (3002)
+   - Enrollment Service (3003)
+2. Student and Course services were designed as independent data owners.
+3. Enrollment Service was designed with inter-service validation:
+   - Calls Student Service to validate student existence.
+   - Calls Course Service to validate course existence.
+4. API Gateway was configured as a unified entry point:
+   - Routes /students, /courses, /enrollments to target services.
+   - Handles timeout and unavailable-service responses.
+5. Health endpoints were added for each service and gateway aggregated checks.
+6. PowerShell scripts were used:
+   - install-all.ps1 for dependency installation.
+   - start-all.ps1 for launching services in separate terminals.
+7. A dedicated microservices seed script created test data across services.
+
+C. Testing workflow used for both architectures
+1. Start required processes.
+2. Execute seed script.
+3. Verify GET endpoints for students, courses, and enrollments.
+4. Test invalid payload handling.
+5. Test duplicate enrollment creation.
+6. Test deletion behavior and relationship impact.
+7. For microservices, test behavior when a dependent service is delayed/unavailable.
+
+III. EXPERIMENTAL FINDINGS / OBSERVATIONS
+
+Based on code inspection and endpoint behavior, the following findings were observed:
+
+1. Functional requirements were achieved in both versions:
+- Student and course creation, retrieval, update, and deletion are implemented.
+- Enrollment creation and listing are implemented.
+
+2. Validation and business rules are enforced in both versions:
+- Input validation exists for required fields and data types.
+- Duplicate student email is blocked in Student components.
+- Duplicate enrollments are rejected.
+
+3. Monolithic-specific observations:
+- Setup is faster due to one application process.
+- Debugging is straightforward because control flow is in one codebase/runtime.
+- Referential cleanup is implemented via cascade delete logic in controllers/models.
+
+4. Microservices-specific observations:
+- Services are isolated by responsibility and port.
+- Enrollment Service demonstrates realistic distributed dependency handling.
+- Gateway and enrollment logic explicitly return timeout (504) and unavailable (503) responses for service failures.
+- Startup coordination overhead is higher because multiple services must run.
+
+5. Gateway behavior:
+- API Gateway centralizes client access and route forwarding.
+- Gateway health endpoint aggregates dependency health statuses.
+- Centralized proxying simplifies client usage but introduces another operational component to monitor.
+
+6. Data seeding observations:
+- Both architectures provide seed scripts with similar datasets.
+- Baseline dataset includes 4 students, 4 courses, and 8 enrollment records for repeatable testing.
+
+IV. LAB DISCUSSIONS / COMPUTATIONS
+
+A. Comparative discussion
+
+The monolithic implementation prioritizes simplicity: one process, one deployment unit, direct in-process module interactions, and easier local troubleshooting.
+
+The microservices implementation prioritizes modularity and service autonomy: each bounded domain is independently deployable, and communication is explicit over HTTP with observable fault states.
+
+B. Computation-oriented comparison (based on implementation metrics)
+
+Metric 1: Runtime process count
+- Monolith: 1 server process
+- Microservices: 4 server processes
+- Difference: +3 additional processes in microservices
+
+Metric 2: Network hop requirement for enrollment creation
+- Monolith: 0 external service hops (local model checks)
+- Microservices: 2 dependent service calls (student + course validation)
+- Implication: higher latency/failure surface in distributed version
+
+Metric 3: Startup command orchestration effort
+- Monolith: npm start in one directory
+- Microservices: multiple service starts (manual terminals or start-all.ps1)
+
+Metric 4: Deployment granularity
+- Monolith: whole-app deployment for any module change
+- Microservices: per-service deployment for targeted changes
+
+Metric 5: Fault isolation potential
+- Monolith: shared process context, lower isolation
+- Microservices: service-level isolation, clearer fault boundaries
+
+C. Interpretation
+
+The exercise demonstrates a classic trade-off:
+- Monolithic architecture is more suitable for small/medium projects needing rapid delivery and lower operational complexity.
+- Microservices architecture is more suitable when long-term modular scaling, team autonomy, and independent service lifecycle management are required.
+
+V. CONCLUSIONS
+
+The objectives of the laboratory exercise were achieved through successful implementation and analysis of both architectural styles using the same Student Course System domain. The monolithic architecture delivered simpler setup, straightforward debugging, and efficient local development. The microservices architecture introduced additional operational complexity but provided clearer separation of concerns, stronger service boundaries, explicit distributed error handling, and better scalability pathways. Therefore, architecture selection should be context-driven: monolith for simplicity and speed in less complex environments, and microservices for systems that demand modular growth, independent deployment, and resilient distributed operations.
+
+References
+
+1. Root Project Documentation, Lab_Activity_1/README.md
+2. Monolithic Documentation, Monolithic_Architecture/README.md
+3. Monolithic Server Entry, Monolithic_Architecture/server.js
+4. Monolithic Controllers, Monolithic_Architecture/controllers/studentController.js
+5. Monolithic Controllers, Monolithic_Architecture/controllers/courseController.js
+6. Monolithic Controllers, Monolithic_Architecture/controllers/enrollmentController.js
+7. Monolithic Validation Middleware, Monolithic_Architecture/middleware/validate.js
+8. Monolithic Enrollment Model, Monolithic_Architecture/models/enrollmentModel.js
+9. Monolithic Seed Script, Monolithic_Architecture/seed.js
+10. Microservices Documentation, Microservices_Architecture/README.md
+11. API Gateway Implementation, Microservices_Architecture/api-gateway/server.js
+12. Student Service Implementation, Microservices_Architecture/student-service/server.js
+13. Course Service Implementation, Microservices_Architecture/course-service/server.js
+14. Enrollment Service Implementation, Microservices_Architecture/enrollment-service/server.js
+15. Microservices Startup Script, Microservices_Architecture/start-all.ps1
+16. Microservices Install Script, Microservices_Architecture/install-all.ps1
+17. Microservices Seed Script, Microservices_Architecture/seed.js
+
+Formatting Note:
+Requested font settings (Cambria, Title size 11) are document editor settings and can be applied when this text is pasted into a word processor.
