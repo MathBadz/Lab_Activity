@@ -32,6 +32,24 @@ A modern product ordering system demonstrating **proper separation of layers** (
 └─────────────────────────────────────────────────┘
 ```
 
+## Guide Questions and Answers
+
+### 1. What is business logic in software architecture?
+
+Business logic is the set of rules that defines how the system should behave for real business scenarios. In this project, examples include checking if a product exists, rejecting invalid quantities, preventing orders beyond available stock, and updating stock only after a valid order.
+
+### 2. Why should business logic not be placed in the UI layer?
+
+Business logic should not live in the UI because UI checks can be bypassed using direct API requests. If rules exist only in the frontend, invalid requests can still reach the backend and affect data. Keeping rules in backend services ensures all clients follow the same constraints.
+
+### 3. How does business logic improve data integrity?
+
+Business logic improves data integrity by enforcing validation before writes and by controlling updates safely. In this project, order processing uses transactions and row locking to avoid race conditions and overselling, while validation ensures required fields and valid quantities.
+
+### 4. What happens if business logic is not implemented?
+
+Without business logic, the system may accept invalid orders, produce inconsistent stock values, and behave differently across UI and direct API clients. This leads to unreliable behavior, weak validation, and higher risk of corrupted or inconsistent data.
+
 
 ## API Endpoints
 
