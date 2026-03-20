@@ -32,7 +32,7 @@ A modern product ordering system demonstrating **proper separation of layers** (
 └─────────────────────────────────────────────────┘
 ```
 
-## Guide Questions and Answers
+## Guide Questions
 
 ### 1. What is business logic in software architecture?
 
