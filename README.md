@@ -8,8 +8,3 @@
 - Yanson, Rea Nicole S.
 - Zambra, Maika T.
 
-## Repository Instructions
-
-This repository is organized by lab branches. Use the commands below from the project root.
-
-
