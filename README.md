@@ -132,9 +132,6 @@ The app will be available at `http://localhost:8000`.
 
 ## curl Testing Commands 
 
-Each command below prints the HTTP status code first, then pretty-prints the JSON body.
-
-
 ### Retrieve all products
 ```bat
 curl -s -o response.json -w "HTTP Status: %{http_code}\n" http://localhost:8000/api/products & type response.json | py -m json.tool & del response.json
@@ -194,6 +191,11 @@ Missing location :
 curl -s -o response.json -w "HTTP Status: %{http_code}\n" -X POST http://localhost:8000/api/order -H "Accept: application/json" -H "Content-Type: application/json" -d "{\"product_id\":1,\"quantity\":1,\"full_name\":\"Juan Dela Cruz\"}" & type response.json | py -m json.tool & del response.json
 ```
 Expected: validation error response (422) for `location`
+
+
+## Screenshots
+
+All required API test screenshots for this lab are stored in the `screenshots/` folder.
 
 
 
