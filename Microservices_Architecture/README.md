@@ -68,29 +68,6 @@ node seed.js
 ```
 
 
-
-## Testing the API
-
-### Create a Student
-```bash
-curl -X POST http://localhost:3000/students \
-  -H "Content-Type: application/json" \
-  -d '{"fullName": "John Doe", "email": "john@email.com", "age": 20}'
-```
-
-### Create a Course
-```bash
-curl -X POST http://localhost:3000/courses \
-  -H "Content-Type: application/json" \
-  -d '{"name": "Web Dev 101", "description": "Intro to web development", "credits": 3}'
-```
-### Create an Enrollment
-```bash
-curl -X POST http://localhost:3000/enrollments \
-  -H "Content-Type: application/json" \
-  -d '{"studentId": "<student-id>", "courseId": "<course-id>"}'
-```
-
 ## Project Structure
 ```
 Microservices_Architecture/
