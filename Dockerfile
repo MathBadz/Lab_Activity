@@ -42,6 +42,11 @@ RUN echo "APP_KEY=base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=" > .env \
     && echo "DB_CONNECTION=sqlite" >> .env \
     && echo "DB_DATABASE=/tmp/build.sqlite" >> .env
 
+# Create directories excluded by .dockerignore that artisan/Laravel requires
+RUN mkdir -p bootstrap/cache storage/logs storage/framework/cache \
+    storage/framework/sessions storage/framework/views \
+    && chmod -R 777 bootstrap/cache storage
+
 # Run the post-autoload-dump hook now that artisan exists
 RUN php artisan package:discover --ansi
 
