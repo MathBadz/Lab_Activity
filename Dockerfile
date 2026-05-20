@@ -90,7 +90,9 @@ COPY --from=builder /app/public/build ./public/build
 COPY --from=builder /app/vendor ./vendor
 
 # Ensure storage and cache directories are writable by php-fpm (www-data)
-RUN chown -R www-data:www-data /var/www/html \
+RUN mkdir -p bootstrap/cache storage/logs storage/framework/cache \
+        storage/framework/sessions storage/framework/views \
+    && chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
