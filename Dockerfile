@@ -24,20 +24,26 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
-# Install Composer dependencies
+# Install Composer dependencies (--no-scripts avoids post-autoload artisan call
+# before the rest of the source is present)
 COPY composer*.json ./
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
 
 # Install Node dependencies
 COPY package.json ./
 RUN npm install --no-audit
 
-# Copy full source and provide a minimal .env so artisan can bootstrap
+# Copy full source now that dependencies are cached in earlier layers
 COPY . .
+
+# Provide a minimal .env so artisan can bootstrap (no real DB needed at build time)
 RUN echo "APP_KEY=base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=" > .env \
     && echo "APP_ENV=production" >> .env \
     && echo "DB_CONNECTION=sqlite" >> .env \
     && echo "DB_DATABASE=/tmp/build.sqlite" >> .env
+
+# Run the post-autoload-dump hook now that artisan exists
+RUN php artisan package:discover --ansi
 
 # Build frontend assets (wayfinder plugin will call php artisan internally)
 RUN npm run build
