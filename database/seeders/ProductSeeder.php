@@ -9,6 +9,11 @@ class ProductSeeder extends Seeder
 {
     public function run(): void
     {
+        // Skip if products already exist to prevent duplicates on redeploy
+        if (Product::count() > 0) {
+            return;
+        }
+
         $products = [
             ['name' => 'Elden Ring', 'category' => 'Game', 'image' => '/images/products/eldenring.jpg', 'price' => 3490.00, 'stock' => 15],
             ['name' => 'God of War Ragnarök', 'category' => 'Game', 'image' => '/images/products/gowr.jpg', 'price' => 3490.00, 'stock' => 20],

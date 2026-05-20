@@ -10,6 +10,9 @@ fi
 echo "==> Running database migrations..."
 php artisan migrate --force
 
+echo "==> Seeding database..."
+php artisan db:seed --force
+
 echo "==> Caching configuration..."
 php artisan config:cache
 
