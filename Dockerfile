@@ -1,14 +1,45 @@
 # -------------------------------------------------------
-# Stage 1: Build frontend assets with Node.js
+# Stage 1: Build stage — PHP + Node.js together
+# The wayfinder Vite plugin calls `php artisan wayfinder:generate`
+# during `npm run build`, so PHP must be present in this stage.
 # -------------------------------------------------------
-FROM node:20-alpine AS frontend
+FROM php:8.2-cli-alpine AS builder
+
+# Install Node.js, npm, and libraries needed by PHP extensions
+RUN apk add --no-cache \
+    nodejs \
+    npm \
+    postgresql-dev \
+    libpng-dev \
+    libzip-dev \
+    oniguruma-dev \
+    zip \
+    unzip
+
+# Install PHP extensions required by Laravel (needed for artisan bootstrap)
+RUN docker-php-ext-install pdo pdo_pgsql pgsql zip gd mbstring
+
+# Install Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
+# Install Composer dependencies
+COPY composer*.json ./
+RUN composer install --no-dev --optimize-autoloader --no-interaction
+
+# Install Node dependencies
 COPY package.json ./
 RUN npm install --no-audit
 
+# Copy full source and provide a minimal .env so artisan can bootstrap
 COPY . .
+RUN echo "APP_KEY=base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=" > .env \
+    && echo "APP_ENV=production" >> .env \
+    && echo "DB_CONNECTION=sqlite" >> .env \
+    && echo "DB_DATABASE=/tmp/build.sqlite" >> .env
+
+# Build frontend assets (wayfinder plugin will call php artisan internally)
 RUN npm run build
 
 # -------------------------------------------------------
@@ -38,19 +69,14 @@ RUN docker-php-ext-install \
     mbstring \
     opcache
 
-# Install Composer 2
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
 WORKDIR /var/www/html
 
 # Copy all application source files
 COPY . .
 
-# Overwrite public/build with assets compiled in the frontend stage
-COPY --from=frontend /app/public/build ./public/build
-
-# Install PHP dependencies (production, no dev)
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# Copy pre-built frontend assets and vendor from builder stage
+COPY --from=builder /app/public/build ./public/build
+COPY --from=builder /app/vendor ./vendor
 
 # Ensure storage and cache directories are writable by php-fpm (www-data)
 RUN chown -R www-data:www-data /var/www/html \
