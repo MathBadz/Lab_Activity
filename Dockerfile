@@ -3,7 +3,7 @@
 # The wayfinder Vite plugin calls `php artisan wayfinder:generate`
 # during `npm run build`, so PHP must be present in this stage.
 # -------------------------------------------------------
-FROM php:8.2-cli-alpine AS builder
+FROM php:8.3-cli-alpine AS builder
 
 # Install Node.js, npm, and libraries needed by PHP extensions
 RUN apk add --no-cache \
@@ -45,7 +45,7 @@ RUN npm run build
 # -------------------------------------------------------
 # Stage 2: PHP-FPM + Nginx runtime
 # -------------------------------------------------------
-FROM php:8.2-fpm-alpine
+FROM php:8.3-fpm-alpine
 
 # Install system packages: nginx, supervisor, postgres driver, and common extensions
 RUN apk add --no-cache \
