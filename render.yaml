@@ -11,6 +11,8 @@ services:
     envVars:
       - key: APP_NAME
         value: "Ordering System"
+      - key: APP_URL
+        value: "https://lab-activity-odmr.onrender.com"
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
